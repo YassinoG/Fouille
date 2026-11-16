@@ -1,0 +1,17 @@
+[
+    {"question": "Est-ce que l'inscription administrative est obligatoire ?", "expected_chunk": "chunk_1"},
+    {"question": "La présence aux cours magistraux et TD est-elle exigée ?", "expected_chunk": "chunk_1"},
+    {"question": "Quel est le délai pour fournir un certificat médical après une absence ?", "expected_chunk": "chunk_2"},
+    {"question": "Combien d'absences injustifiées entraînent un avertissement ?", "expected_chunk": "chunk_2"},
+    {"question": "Que se passe-t-il si je manque un TP sans justification ?", "expected_chunk": "chunk_2"},
+    {"question": "Quelle note faut-il avoir au minimum pour valider un module ?", "expected_chunk": "chunk_3"},
+    {"question": "Comment est validé un semestre ?", "expected_chunk": "chunk_3"},
+    {"question": "Faut-il une moyenne de 10 sur 20 pour réussir le semestre ?", "expected_chunk": "chunk_3"},
+    {"question": "Qui peut passer la session de rattrapage ?", "expected_chunk": "chunk_4"},
+    {"question": "La note du rattrapage remplace-t-elle la note initiale ?", "expected_chunk": "chunk_4"},
+    {"question": "Comment se déroule le rattrapage pour les modules non acquis ?", "expected_chunk": "chunk_4"},
+    {"question": "Quelles sont les sanctions en cas de fraude à un examen ?", "expected_chunk": "chunk_5"},
+    {"question": "Que risque un étudiant pris en flagrant délit de plagiat ?", "expected_chunk": "chunk_5"},
+    {"question": "Quelle note obtient-on en cas de tentative de fraude ?", "expected_chunk": "chunk_5"},
+    {"question": "Le conseil de discipline est-il saisi lors d'une fraude ?", "expected_chunk": "chunk_5"}
+]
