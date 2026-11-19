@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Assistant Règlement des Études - UIT</title>
+    <!-- Lightweight Markdown Parser for clean LLM responses -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #eef2f5; height: 100vh; display: flex; justify-content: center; align-items: center; }
+
+        .chat-container { width: 100%; max-width: 780px; height: 90vh; background: #ffffff; border-radius: 14px; box-shadow: 0 8px 28px rgba(0,0,0,0.09); display: flex; flex-direction: column; overflow: hidden; }
+
+        .chat-header { background: #0066cc; color: white; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; }
+        .chat-header h2 { font-size: 1.15rem; font-weight: 600; }
+        .chat-header span { font-size: 0.85rem; opacity: 0.85; }
+
+        #chat-box { flex: 1; padding: 20px; overflow-y: auto; background: #f4f7f9; display: flex; flex-direction: column; gap: 16px; }
+
+        .message { max-width: 85%; padding: 14px 18px; border-radius: 14px; font-size: 0.95rem; line-height: 1.55; word-wrap: break-word; }
+        .message.user { background: #0066cc; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .message.agent { background: #ffffff; color: #1c1e21; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #e1e8ed; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+
+        /* Clean Markdown Styling inside Agent Bubbles */
+        .synthesis-content h3 { font-size: 1.05rem; color: #0056b3; margin-top: 8px; margin-bottom: 6px; }
+        .synthesis-content p { margin-bottom: 8px; }
+        .synthesis-content ul, .synthesis-content ol { margin-left: 20px; margin-bottom: 8px; }
+        .synthesis-content li { margin-bottom: 4px; }
+        .synthesis-content strong { font-weight: 600; color: #004080; }
+        .synthesis-content code { background: #f0f4f8; padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
+
+        /* Collapsible Source Drawer */
+        details.sources-drawer { margin-top: 12px; border-top: 1px solid #eaedf0; padding-top: 10px; }
+        details.sources-drawer summary { font-size: 0.85rem; font-weight: 600; color: #0066cc; cursor: pointer; user-select: none; outline: none; display: flex; align-items: center; gap: 6px; }
+        details.sources-drawer summary:hover { text-decoration: underline; }
+
+        .sources-container { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .source-card { background: #f8f9fa; border-left: 3px solid #0066cc; padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; color: #333; }
+        .source-card .title { font-weight: 600; color: #004080; margin-bottom: 4px; }
+        .source-card .link { font-size: 0.78rem; color: #65676b; margin-top: 4px; word-break: break-all; }
+        .source-card .link a { color: #0066cc; text-decoration: none; }
+        .source-card .link a:hover { text-decoration: underline; }
+
+        /* Loading indicator */
+        .typing-indicator { font-style: italic; color: #65676b; font-size: 0.88rem; }
+
+        .suggestions-bar { padding: 10px 16px; background: #ffffff; display: flex; gap: 8px; overflow-x: auto; border-top: 1px solid #f0f2f5; }
+        .suggestion-chip { background: #e7f3ff; color: #0056b3; border: 1px solid #cce4ff; padding: 6px 14px; border-radius: 16px; font-size: 0.82rem; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+        .suggestion-chip:hover { background: #d0e8ff; }
+
+        .chat-input-area { padding: 14px 16px; background: #ffffff; border-top: 1px solid #e1e8ed; display: flex; gap: 10px; align-items: center; }
+        input[type="text"] { flex: 1; padding: 12px 16px; border: 1px solid #ccd0d5; border-radius: 24px; outline: none; font-size: 0.95rem; }
+        input[type="text"]:focus { border-color: #0066cc; }
+
+        button { background: #0066cc; color: white; border: none; border-radius: 24px; padding: 10px 24px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #0052a3; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div>
+                <h2>🎓 Assistant Règlement des Études - UIT</h2>
+                <span>Université Internationale de Tunis • Propulsé par Qwen 2.5</span>
+            </div>
+        </div>
+
+        <div id="chat-box">
+            <div class="message agent">
+                Bonjour ! Je suis l'assistant intelligent du règlement des études de l'UIT. Posez vos questions sur la scolarité, les examens, les absences ou demandez un calcul de moyenne.<br><br>
+                <em>Hello! I am the UIT AI Assistant. Ask me about university regulations or grade calculations.</em>
+            </div>
+        </div>
+
+        <div class="suggestions-bar">
+            <div class="suggestion-chip" onclick="sendSuggestion('Quelles sont les conditions pour valider un semestre ?')">📚 Valider un semestre</div>
+            <div class="suggestion-chip" onclick="sendSuggestion('Comment sont gérées les absences en TD ?')">📝 Règles d'absences</div>
+            <div class="suggestion-chip" onclick="sendSuggestion('Je veux calculer ma moyenne avec une note de 14 coef 3 et 9 coef 2')">🧮 Calculer une moyenne</div>
+            <div class="suggestion-chip" onclick="sendSuggestion('C\'est quoi un PFE ?')">📖 Définition PFE</div>
+            <div class="suggestion-chip" onclick="sendSuggestion('What are the rules for exam fraud?')">🇬🇧 Exam fraud rules</div>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="user-input" placeholder="Écrivez votre message / Type your message..." onkeypress="if(event.key === 'Enter') sendMessage()">
+            <button onclick="sendMessage()">Envoyer</button>
+        </div>
+    </div>
+
+    <script>
+        function sendSuggestion(text) {
+            document.getElementById('user-input').value = text;
+            sendMessage();
+        }
+
+        function renderMarkdown(text) {
+            if (typeof marked !== 'undefined') {
+                return marked.parse(text);
+            }
+            return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            const chatBox = document.getElementById('chat-box');
+            const text = input.value.trim();
+            if (!text) return;
+
+            // 1. Add User Bubble
+            const userBubble = document.createElement('div');
+            userBubble.className = 'message user';
+            userBubble.textContent = text;
+            chatBox.appendChild(userBubble);
+
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // 2. Add Temporary Typing Indicator
+            const loadingBubble = document.createElement('div');
+            loadingBubble.className = 'message agent typing-indicator';
+            loadingBubble.textContent = '⏳ Qwen analyse le règlement de l\'UIT...';
+            chatBox.appendChild(loadingBubble);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // 3. Fetch Response
+            fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            })
+            .then(res => res.json())
+            .then(data => {
+                chatBox.removeChild(loadingBubble);
+                const resp = data.response;
+                const agentBubble = document.createElement('div');
+                agentBubble.className = 'message agent';
+
+                if (resp.type === 'text') {
+                    agentBubble.innerHTML = `<div class="synthesis-content">${renderMarkdown(resp.content)}</div>`;
+                } else if (resp.type === 'rag') {
+                    let formattedSynthesis = renderMarkdown(resp.synthesis);
+                    let html = `<div class="synthesis-content">${formattedSynthesis}</div>`;
+
+                    if (resp.chunks && resp.chunks.length > 0) {
+                        html += `
+                            <details class="sources-drawer">
+                                <summary>📚 Voir les sources officielles (${resp.chunks.length})</summary>
+                                <div class="sources-container">
+                        `;
+                        resp.chunks.forEach(chunk => {
+                            let metaParts = chunk.metadata.split('|');
+                            let sourceName = metaParts[0] ? metaParts[0].trim() : "Source Officielle UIT";
+                            let title = metaParts[1] ? metaParts[1].replace('Titre:', '').trim() : "Article du Règlement";
+                            let linkMatch = chunk.metadata.match(/Lien:\s*(https?:\/\/[^\s]+)/);
+                            let link = linkMatch ? linkMatch[1] : "#";
+
+                            html += `
+                                <div class="source-card">
+                                    <div class="title">📌 ${title}</div>
+                                    <div>${chunk.texte}</div>
+                                    <div class="link">🔗 <a href="${link}" target="_blank">${sourceName}</a></div>
+                                </div>
+                            `;
+                        });
+                        html += `</div></details>`;
+                    }
+                    agentBubble.innerHTML = html;
+                }
+
+                chatBox.appendChild(agentBubble);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            })
+            .catch(err => {
+                chatBox.removeChild(loadingBubble);
+                const errorBubble = document.createElement('div');
+                errorBubble.className = 'message agent';
+                errorBubble.textContent = "⚠️ Erreur de communication avec le serveur.";
+                chatBox.appendChild(errorBubble);
+            });
+        }
+    </script>
+</body>
+</html>

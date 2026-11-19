@@ -1,4 +1,4 @@
 experience_id,modele_embedding,parametre_k,Hit_at_k,MRR,Taux_Citation,Statut_Seuil_Step1
-EXP_1,TF-IDF,1,0.8667,0.8667,1.0,TEST
-EXP_2,TF-IDF,2,1.0,0.9333,1.0,TEST
-EXP_3,TF-IDF,3,1.0,0.9333,1.0,VALIDE
+EXP_SEM_1,Sentence-Transformers,1,1.0,1.0,1.0,TEST
+EXP_SEM_2,Sentence-Transformers,2,1.0,1.0,1.0,VALIDE
+EXP_SEM_3,Sentence-Transformers,3,1.0,1.0,1.0,VALIDE
