@@ -14,6 +14,7 @@
         .chat-header { background: #0066cc; color: white; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; }
         .chat-header h2 { font-size: 1.15rem; font-weight: 600; }
         .chat-header span { font-size: 0.85rem; opacity: 0.85; }
+        .chat-header a { color: #ffffff; font-size: 0.85rem; text-decoration: underline; }
 
         #chat-box { flex: 1; padding: 20px; overflow-y: auto; background: #f4f7f9; display: flex; flex-direction: column; gap: 16px; }
 
@@ -63,6 +64,7 @@
                 <h2>🎓 Assistant Règlement des Études - UIT</h2>
                 <span>Université Internationale de Tunis • Propulsé par Qwen 2.5</span>
             </div>
+            <a href="https://univ-internationale.com/fr" target="_blank" rel="noopener noreferrer">Site officiel UIT</a>
         </div>
 
         <div id="chat-box">
@@ -87,6 +89,8 @@
     </div>
 
     <script>
+        const OFFICIAL_UIT_URL = "https://univ-internationale.com/fr";
+
         function sendSuggestion(text) {
             document.getElementById('user-input').value = text;
             sendMessage();
@@ -105,7 +109,6 @@
             const text = input.value.trim();
             if (!text) return;
 
-            // 1. Add User Bubble
             const userBubble = document.createElement('div');
             userBubble.className = 'message user';
             userBubble.textContent = text;
@@ -114,14 +117,12 @@
             input.value = '';
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            // 2. Add Temporary Typing Indicator
             const loadingBubble = document.createElement('div');
             loadingBubble.className = 'message agent typing-indicator';
             loadingBubble.textContent = '⏳ Qwen analyse le règlement de l\'UIT...';
             chatBox.appendChild(loadingBubble);
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            // 3. Fetch Response
             fetch('/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -151,13 +152,16 @@
                             let sourceName = metaParts[0] ? metaParts[0].trim() : "Source Officielle UIT";
                             let title = metaParts[1] ? metaParts[1].replace('Titre:', '').trim() : "Article du Règlement";
                             let linkMatch = chunk.metadata.match(/Lien:\s*(https?:\/\/[^\s]+)/);
-                            let link = linkMatch ? linkMatch[1] : "#";
+                            let link = linkMatch ? linkMatch[1] : OFFICIAL_UIT_URL;
+                            if (link.includes("uit.edu.tn")) {
+                                link = OFFICIAL_UIT_URL;
+                            }
 
                             html += `
                                 <div class="source-card">
                                     <div class="title">📌 ${title}</div>
                                     <div>${chunk.texte}</div>
-                                    <div class="link">🔗 <a href="${link}" target="_blank">${sourceName}</a></div>
+                                    <div class="link">🔗 <a href="${link}" target="_blank" rel="noopener noreferrer">${sourceName}</a></div>
                                 </div>
                             `;
                         });
